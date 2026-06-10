@@ -12,3 +12,5 @@ services:
         value: Sheet1
       - key: GOOGLE_CREDENTIALS_JSON
         sync: false
+      - key: ALLOWED_ORIGINS
+        value: https://murban-frontend.onrender.com

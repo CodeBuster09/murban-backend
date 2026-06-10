@@ -13,6 +13,7 @@ type Config struct {
 	GoogleSheetsID        string
 	GoogleSheetName       string
 	GoogleCredentialsJSON string
+	AllowedOrigins        []string
 }
 
 func Load() (*Config, error) {
@@ -39,8 +40,16 @@ func Load() (*Config, error) {
 		return nil, err
 	}
 	cfg.GoogleCredentialsJSON = credsJSON
+	cfg.AllowedOrigins = loadAllowedOrigins()
 
 	return cfg, nil
+}
+
+func loadAllowedOrigins() []string {
+	if raw := strings.TrimSpace(os.Getenv("ALLOWED_ORIGINS")); raw != "" {
+		return strings.Split(raw, ",")
+	}
+	return []string{"https://murban-frontend.onrender.com"}
 }
 
 func loadGoogleCredentialsJSON() (string, error) {

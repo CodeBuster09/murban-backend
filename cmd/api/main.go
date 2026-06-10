@@ -5,6 +5,7 @@ import (
 	"log"
 	"murban-backend/internal/config"
 	"murban-backend/internal/handlers"
+	"murban-backend/internal/middleware"
 	"murban-backend/internal/storage"
 	"net/http"
 	"os"
@@ -39,7 +40,7 @@ func main() {
 
 	srv := &http.Server{
 		Addr:         ":" + cfg.Port,
-		Handler:      mux,
+		Handler:      middleware.CORS(cfg.AllowedOrigins, mux),
 		ReadTimeout:  10 * time.Second,
 		WriteTimeout: 10 * time.Second,
 	}
