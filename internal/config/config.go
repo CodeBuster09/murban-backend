@@ -49,7 +49,11 @@ func loadAllowedOrigins() []string {
 	if raw := strings.TrimSpace(os.Getenv("ALLOWED_ORIGINS")); raw != "" {
 		return strings.Split(raw, ",")
 	}
-	return []string{"https://murban-frontend.onrender.com"}
+	return []string{
+		"https://murban-frontend.onrender.com",
+		"https://murban.in",
+		"https://www.murban.in",
+	}
 }
 
 func loadGoogleCredentialsJSON() (string, error) {
