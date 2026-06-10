@@ -4,6 +4,7 @@ services:
     runtime: go
     buildCommand: go build -o server ./cmd/api
     startCommand: ./server
+    healthCheckPath: /healthz
     envVars:
       - key: GOOGLE_SHEETS_ID
         sync: false
