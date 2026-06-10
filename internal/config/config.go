@@ -1,8 +1,10 @@
 package config
 
 import (
+	"encoding/base64"
 	"fmt"
 	"os"
+	"strings"
 
 	"github.com/joho/godotenv"
 )
@@ -18,10 +20,9 @@ func Load() (*Config, error) {
 	_ = godotenv.Load()
 
 	cfg := &Config{
-		Port:                  os.Getenv("PORT"),
-		GoogleSheetsID:        os.Getenv("GOOGLE_SHEETS_ID"),
-		GoogleSheetName:       os.Getenv("GOOGLE_SHEET_NAME"),
-		GoogleCredentialsJSON: os.Getenv("GOOGLE_CREDENTIALS_JSON"),
+		Port:           os.Getenv("PORT"),
+		GoogleSheetsID: os.Getenv("GOOGLE_SHEETS_ID"),
+		GoogleSheetName: os.Getenv("GOOGLE_SHEET_NAME"),
 	}
 
 	if cfg.Port == "" {
@@ -34,17 +35,35 @@ func Load() (*Config, error) {
 		cfg.GoogleSheetName = "Sheet1"
 	}
 
-	if cfg.GoogleCredentialsJSON == "" {
-		credsFile := os.Getenv("GOOGLE_CREDENTIALS_FILE")
-		if credsFile == "" {
-			return nil, fmt.Errorf("GOOGLE_CREDENTIALS_JSON or GOOGLE_CREDENTIALS_FILE is not set")
-		}
-		data, err := os.ReadFile(credsFile)
-		if err != nil {
-			return nil, fmt.Errorf("read GOOGLE_CREDENTIALS_FILE: %w", err)
-		}
-		cfg.GoogleCredentialsJSON = string(data)
+	credsJSON, err := loadGoogleCredentialsJSON()
+	if err != nil {
+		return nil, err
 	}
+	cfg.GoogleCredentialsJSON = credsJSON
 
 	return cfg, nil
+}
+
+func loadGoogleCredentialsJSON() (string, error) {
+	if b64 := strings.TrimSpace(os.Getenv("GOOGLE_CREDENTIALS_JSON_B64")); b64 != "" {
+		data, err := base64.StdEncoding.DecodeString(b64)
+		if err != nil {
+			return "", fmt.Errorf("decode GOOGLE_CREDENTIALS_JSON_B64: %w", err)
+		}
+		return string(data), nil
+	}
+
+	if json := strings.TrimSpace(os.Getenv("GOOGLE_CREDENTIALS_JSON")); json != "" {
+		return json, nil
+	}
+
+	credsFile := os.Getenv("GOOGLE_CREDENTIALS_FILE")
+	if credsFile == "" {
+		return "", fmt.Errorf("GOOGLE_CREDENTIALS_JSON_B64, GOOGLE_CREDENTIALS_JSON, or GOOGLE_CREDENTIALS_FILE is not set")
+	}
+	data, err := os.ReadFile(credsFile)
+	if err != nil {
+		return "", fmt.Errorf("read GOOGLE_CREDENTIALS_FILE: %w", err)
+	}
+	return string(data), nil
 }

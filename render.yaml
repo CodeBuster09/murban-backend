@@ -9,5 +9,5 @@ services:
         sync: false
       - key: GOOGLE_SHEET_NAME
         value: Sheet1
-      - key: GOOGLE_CREDENTIALS_JSON
+      - key: GOOGLE_CREDENTIALS_JSON_B64
         sync: false
